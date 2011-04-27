@@ -110,7 +110,8 @@ static uint32_t spade_sdslot_switchvdd(struct device *dev, unsigned int vdd)
 	sdslot_vdd = vdd;
 
 	if (vdd == 0) {
-		printk(KERN_INFO "%s: Disabling SD slot power\n", __func__);
+		printk(KERN_INFO "%s: Disabling SD slot power (dealy 10ms)\n", __func__);
+		mdelay(10);
 		config_gpio_table(sdcard_off_gpio_table,
 				  ARRAY_SIZE(sdcard_off_gpio_table));
 		vreg_disable(vreg_sdslot);
@@ -306,6 +307,11 @@ int __init spade_init_mmc(unsigned int sys_rev)
 	printk(KERN_INFO "%s: %d\n", __func__, SPADE_SDMC_CD_N_TO_SYS);
 
 done:
+
+	/* reset eMMC for write protection test */
+	gpio_set_value(SPADE_GPIO_EMMC_RST, 0);	/* this should not work!!! */
+	udelay(100);
+	gpio_set_value(SPADE_GPIO_EMMC_RST, 1);
 
 	return 0;
 }

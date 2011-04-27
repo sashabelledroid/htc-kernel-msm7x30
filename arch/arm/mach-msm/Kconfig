@@ -508,6 +508,13 @@ config MSM_SPM
 	help
 	   Enables support for the subsystem power manager.
 
+config HTC_VOICE_DUALMIC
+	tristate "HTC Dualmic functionality"
+	depends on (ARCH_MSM7X30)
+	default n
+	help
+	  Enable dual-mic functinality to do noise suppresion during voice call.
+
 config SMEM_RPC_SERVER_STATE
 	default n
 	bool "Set RPC Server State in SMEM"
@@ -1184,7 +1191,7 @@ config HTC_ONMODE_CHARGING
 	bool "On Mode Charging Icon Support"
 	default n
 	help
-		support on mode charing icon
+	  support on mode charing icon
 
 config BUILD_CIQ
         bool "Build in CIQ fixes"
@@ -1201,13 +1208,20 @@ config SMD_OFFSET_TCXO_STAT
 	help
           TCXO off time is in tick of sleep clock, 1/32768.
 
+config SMD_OFFSET_NEGATE_CLIENT_STAT
+	depends on MSM_SMD
+	hex "SMD offset of negate clinet stat"
+	default 0x0
+	help
+	  TCXO shutdown retry conuter and negate tcxoc client counters.
+
 config AXI_SCREEN_POLICY
         depends on ARCH_QSD8X50 || ARCH_MSM7X00A || ARCH_MSM7227 || ARCH_MSM7225
 	depends on HAS_EARLYSUSPEND
 	bool "Use higher AXI bus while screen ON"
 	default n
 	help
-		Simple AXI scaling based on screen ON/OFF and PWRC.
+	  Simple AXI scaling based on screen ON/OFF and PWRC.
 
 config MSM_NPA
 	bool "Node Power Architecture(NPA) support"
@@ -1269,26 +1283,31 @@ config MSM_SSBI
 	  Qualcomm PMICs and Audio codecs.
 
 config RPC_SIZE_1024
-    default n
-    bool "set RPC size to 1024"
+	default n
+	bool "set RPC size to 1024"
 
 config ACPUCLOCK_DEBUG
 	depends on DEBUG_FS
 	bool "Acpuclock debugfs"
 	default n
 	help
-		Acpuclock freq/vdd adjustment in debugfs.
+	  Acpuclock freq/vdd adjustment in debugfs.
 
 config HTC_OFFMODE_ALARM
 	bool "Enables HTC offmode alarm."
 	default n
 	help
-		support HTC offmode alarm.
+	  support HTC offmode alarm.
 
 config PROC_COMM_TIMEOUT_RESET
-    bool "Enable proc_comm timeout to check modem hang"
-    default n
-    help
-		To reset device while modem hang, and cannot respond proc_comm.
-		Enable this might cause slight overhead on each proc_comm call.
+	bool "Enable proc_comm timeout to check modem hang"
+	default n
+	help
+	  reset device while modem hang, and cannot respond proc_comm.
+	  Enable this might cause slight overhead on each proc_comm call.
 
+config HTC_QUICKBOOT_OFFMODE_ALARM
+	bool "Support HTC quickboot offmode alarm."
+	default n
+	help
+	  support HTC quickboot offmode alarm.

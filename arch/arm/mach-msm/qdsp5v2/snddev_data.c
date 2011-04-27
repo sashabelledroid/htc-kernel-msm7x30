@@ -491,9 +491,8 @@ static struct snddev_icodec_data snddev_ifmradio_headset_data = {
 	.profile = &ifmradio_headset_profile,
 	.channel_mode = 2,
 	.default_sample_rate = 48000,
-	/* change to raise ncp power. capless need ncp bias. */
 	.pamp_on = headset_enable,
-	.vol_idx = Q5V2_HW_HEADSET
+	.dev_vol_type = SNDDEV_DEV_VOL_DIGITAL,
 };
 
 static struct platform_device msm_ifmradio_headset_device = {

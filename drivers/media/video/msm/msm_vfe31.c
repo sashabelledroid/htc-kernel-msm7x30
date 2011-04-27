@@ -399,59 +399,37 @@ void vfe_stop(void)
 {
 	pr_info("vfe_stop()  enter\n");
 
-pr_info("vfe_stop()  check point 01  :  before atomic_set" \
-		"(&(vfe31_ctrl->vstate), 0)\n");
 	atomic_set(&(vfe31_ctrl->vstate), 0);
-pr_info("vfe_stop()  check point 02  :  before atomic_set" \
-		"(&(vfe31_ctrl->stop_ack_pending), 1)\n");
 	atomic_set(&(vfe31_ctrl->stop_ack_pending), 1);
 
 	/* in either continuous or snapshot mode, stop command can be issued
 	 * at any time. stop camif immediately. */
-pr_info("vfe_stop()  check point 03  :  before msm_io_w_mb" \
-		"(CAMIF_COMMAND_STOP_IMMEDIATELY, ... VFE_CAMIF_COMMAND\n");
 	msm_io_w_mb(CAMIF_COMMAND_STOP_IMMEDIATELY,
 		vfe31_ctrl->vfebase + VFE_CAMIF_COMMAND);
 
-pr_info("vfe_stop()  check point 04  :  before msm_io_w" \
-		"(VFE_DISABLE_ALL_IRQS, ... VFE_IRQ_MASK_0\n");
 	/* disable all interrupts.  */
 	msm_io_w(VFE_DISABLE_ALL_IRQS,
 		vfe31_ctrl->vfebase + VFE_IRQ_MASK_0);
-pr_info("vfe_stop()  check point 05  :  before msm_io_w" \
-		"(VFE_DISABLE_ALL_IRQS, ... VFE_IRQ_MASK_1\n");
 	msm_io_w(VFE_DISABLE_ALL_IRQS,
 		vfe31_ctrl->vfebase + VFE_IRQ_MASK_1);
 
-pr_info("vfe_stop()  check point 06  :  before msm_io_w" \
-		"(VFE_CLEAR_ALL_IRQS, ... VFE_IRQ_CLEAR_0\n");
 	/* clear all pending interrupts*/
 	msm_io_w(VFE_CLEAR_ALL_IRQS,
 		vfe31_ctrl->vfebase + VFE_IRQ_CLEAR_0);
-pr_info("vfe_stop()  check point 07  :  before msm_io_w" \
-		"(VFE_CLEAR_ALL_IRQS, ... VFE_IRQ_CLEAR_1\n");
 	msm_io_w(VFE_CLEAR_ALL_IRQS,
 		vfe31_ctrl->vfebase + VFE_IRQ_CLEAR_1);
 	/* Ensure the write order while writing
 	to the command register using the barrier */
-pr_info("vfe_stop()  check point 08  :  before msm_io_w_mb" \
-		"(1, ... VFE_IRQ_CMD\n");
 	msm_io_w_mb(1,
 		vfe31_ctrl->vfebase + VFE_IRQ_CMD);
 
 	/* now enable only halt_irq & reset_irq */
-pr_info("vfe_stop()  check point 09  :  before msm_io_w" \
-		"(0xf0000000, ... VFE_IRQ_MASK_0\n");
 	msm_io_w(0xf0000000,          /* this is for async timer. */
 		vfe31_ctrl->vfebase + VFE_IRQ_MASK_0);
-pr_info("vfe_stop()  check point 10  :  before msm_io_w" \
-		"(VFE_IMASK_WHILE_STOPPING_1, ... VFE_IRQ_MASK_1\n");
 	msm_io_w(VFE_IMASK_WHILE_STOPPING_1,
 		vfe31_ctrl->vfebase + VFE_IRQ_MASK_1);
 
 	/* then apply axi halt command. */
-pr_info("vfe_stop()  check point 11  :  before msm_io_w_mb" \
-		"(AXI_HALT, ... VFE_AXI_CMD\n");
 	msm_io_w_mb(AXI_HALT,
 		vfe31_ctrl->vfebase + VFE_AXI_CMD);
 
@@ -1050,6 +1028,68 @@ void vfe31_write_la_cfg(enum VFE31_DMI_RAM_SEL channel_sel,
 	vfe31_program_dmi_cfg(NO_MEM_SELECTED);
 #endif
 }
+void vfe31_write_sce_cfg(const uint32_t *tbl)
+{
+	uint32_t i;
+	uint32_t *tempPtr;
+
+	CDBG("fall into vfe31_write_sce_cfg()!!!\n");
+	CDBG("VFE Base Addr:0x%x\n", (uint32_t)vfe31_ctrl->vfebase);
+	tempPtr  =
+		(uint32_t *)(vfe31_ctrl->vfebase + VFE_SKIN_ENHAN_CR_COORD_0);
+
+	for (i = 0; i < VFE_SKIN_ENHAN_COORDINATES_LEN; i++) {
+		CDBG("VFE_SKIN_ENHAN_CR_COORD_0");
+		CDBG("Addr:0x%x valuePtr:0x%x value:0x%x\n",
+			tempPtr, tbl, (*tbl));
+		msm_io_w(*tbl++, tempPtr++);
+	}
+
+	tempPtr  =
+		(uint32_t *)(vfe31_ctrl->vfebase + VFE_SKIN_ENHAN_CB_COORD_0);
+	for (i = 0; i < VFE_SKIN_ENHAN_COORDINATES_LEN; i++) {
+		CDBG("VFE_SKIN_ENHAN_CB_COORD_0");
+		CDBG("Addr:0x%x valuePtr:0x%x value:0x%x\n",
+			tempPtr, tbl, *tbl);
+		msm_io_w(*tbl++, tempPtr++);
+	}
+
+	tempPtr  =
+		(uint32_t *)(vfe31_ctrl->vfebase + VFE_SKIN_ENHAN_CR_COEFF_0);
+	for (i = 0; i < VFE_SKIN_ENHAN_COEFF_LEN; i++) {
+		CDBG("VFE_SKIN_ENHAN_CR_COEFF_0");
+		CDBG("Addr:0x%x tbl:0x%x tbl:0x%x\n",
+			tempPtr, tbl, *tbl);
+		msm_io_w(*tbl++, tempPtr++);
+	}
+
+	tempPtr  =
+		(uint32_t *)(vfe31_ctrl->vfebase + VFE_SKIN_ENHAN_CB_COEFF_0);
+	for (i = 0; i < VFE_SKIN_ENHAN_COEFF_LEN; i++)  {
+		CDBG("VFE_SKIN_ENHAN_CB_COEFF_0");
+		CDBG("Addr:0x%x tbl:0x%x tbl:0x%x\n",
+			tempPtr, tbl, *tbl);
+		msm_io_w(*tbl++, tempPtr++);
+	}
+
+	tempPtr  =
+		(uint32_t *)(vfe31_ctrl->vfebase + VFE_SKIN_ENHAN_CR_OFFSET_0);
+	for (i = 0; i < VFE_SKIN_ENHAN_OFFSET_LEN; i++) {
+		CDBG("VFE_SKIN_ENHAN_CR_OFFSET_0");
+		CDBG("Addr:0x%x tbl:0x%x tbl:0x%x\n",
+			tempPtr, tbl, *tbl);
+		msm_io_w(*tbl++, tempPtr++);
+	}
+
+	tempPtr  =
+		(uint32_t *)(vfe31_ctrl->vfebase + VFE_SKIN_ENHAN_CB_OFFSET_0);
+	for (i = 0; i < VFE_SKIN_ENHAN_OFFSET_LEN; i++) {
+		CDBG("VFE_SKIN_ENHAN_CB_OFFSET_0");
+		CDBG("Addr:0x%x tbl:0x%x tbl:0x%x\n",
+			tempPtr, tbl, *tbl);
+		msm_io_w(*tbl++, tempPtr++);
+	}
+}
 
 
 static int vfe31_proc_general(struct msm_vfe31_cmd *cmd)
@@ -1417,6 +1457,22 @@ static int vfe31_proc_general(struct msm_vfe31_cmd *cmd)
 		break;
 	case V31_STOP:
 		vfe_stop();
+		break;
+
+	case V31_SK_ENHAN_CFG: {
+			CDBG("fall into V31_SK_ENHAN_CFG!!!\n");
+			cmdp = kmalloc(cmd->length, GFP_ATOMIC);
+			if (!cmdp) {
+				rc = -ENOMEM;
+				goto proc_general_done;
+			}
+			if (copy_from_user(cmdp, (void __user *)(cmd->value),
+				cmd->length)) {
+				rc = -EFAULT;
+				goto proc_general_done;
+			}
+			vfe31_write_sce_cfg(cmdp);
+		}
 		break;
 	default: {
 		if (cmd->length != vfe31_cmd[cmd->id].length)

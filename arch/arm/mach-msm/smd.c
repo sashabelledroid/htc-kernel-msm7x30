@@ -174,8 +174,6 @@ uint32_t raw_smsm_get_state(enum smsm_state_item item)
 static int check_for_modem_crash(void)
 {
 	if (raw_smsm_get_state(SMSM_STATE_MODEM) & SMSM_RESET) {
-		dump_stack();
-		msm_pm_flush_console();
 		handle_modem_crash();
 		return -1;
 	}
@@ -1232,6 +1230,8 @@ int smd_core_init(void)
 		state = smem_item(SMEM_SMSM_SHARED_STATE, &size);
 		if (size == SMSM_V1_SIZE || size == SMSM_V2_SIZE) {
 			smd_info.state = (unsigned)state;
+			pr_info("phy addr of smd_info.state=0x%X\n",
+				MSM_SHARED_RAM_PHYS + (smd_info.state -	(uint32_t)MSM_SHARED_RAM_BASE));
 			break;
 		}
 	}

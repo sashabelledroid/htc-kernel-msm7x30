@@ -453,7 +453,7 @@ static ssize_t spi_bma150_store(struct device *dev,
 
 }
 
-static DEVICE_ACCESSORY_ATTR(PhoneOnOffFlag, 0666, \
+static DEVICE_ACCESSORY_ATTR(PhoneOnOffFlag, 0664, \
 	spi_bma150_show, spi_bma150_store);
 
 int spi_bma150_registerAttr(void)
